@@ -10,7 +10,7 @@ import java.util.ListIterator;
  * Hello world!
  *
  */
-public class ListaDoblementeEnlazada<E> implements List<E>, Deque<E>
+public class DoublyLinkedList<E> implements List<E>, Deque<E>
 {
     public static void main( String[] args )
     {
@@ -287,5 +287,30 @@ public class ListaDoblementeEnlazada<E> implements List<E>, Deque<E>
 		return null;
 	}
 
-
+	private final static class Node<E> {
+		private final E valor;
+		private Node<E> siguiente;
+		private Node<E> previo;
+		public Node(E valor, Node<E> siguiente, Node<E> previo) {
+			super();
+			this.valor = valor;
+			this.siguiente = siguiente;
+			this.previo = previo;
+		}
+		public Node<E> getSiguiente() {
+			return siguiente;
+		}
+		public void setSiguiente(Node<E> siguiente) {
+			this.siguiente = siguiente;
+		}
+		public Node<E> getPrevio() {
+			return previo;
+		}
+		public void setPrevio(Node<E> previo) {
+			this.previo = previo;
+		}
+		public E getValor() {
+			return valor;
+		}
+	}
 }

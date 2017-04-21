@@ -7,7 +7,7 @@ import junit.framework.TestSuite;
 /**
  * Unit test for simple App.
  */
-public class ListaDoblementeEnlazadaTest 
+public class DoublyLinkedListTest 
     extends TestCase
 {
     /**
@@ -15,7 +15,7 @@ public class ListaDoblementeEnlazadaTest
      *
      * @param testName name of the test case
      */
-    public ListaDoblementeEnlazadaTest( String testName )
+    public DoublyLinkedListTest( String testName )
     {
         super( testName );
     }
@@ -25,7 +25,7 @@ public class ListaDoblementeEnlazadaTest
      */
     public static Test suite()
     {
-        return new TestSuite( ListaDoblementeEnlazadaTest.class );
+        return new TestSuite( DoublyLinkedListTest.class );
     }
 
     /**
