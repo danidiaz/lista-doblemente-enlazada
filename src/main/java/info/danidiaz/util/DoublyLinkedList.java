@@ -5,28 +5,41 @@ import java.util.Deque;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.NoSuchElementException;
 
 /**
  * Hello world!
  *
  */
-public class DoublyLinkedList<E> implements List<E>, Deque<E>
+public final class DoublyLinkedList<E> implements List<E>, Deque<E>
 {
-    public static void main( String[] args )
-    {
-        System.out.println( "Hello World!" );
-    }
+	private Node<E> first;
+	private Node<E> last;
+	
+    public DoublyLinkedList() {
+		super();
+	}
 
 	@Override
 	public void addFirst(E e) {
-		// TODO Auto-generated method stub
-		
+		final Node<E> newFirst = new Node<>(e,first,null);
+		if (isEmpty()) {
+			last = newFirst;
+		} else {
+			first.setPrevious(newFirst);
+		}
+		first = newFirst;
 	}
 
 	@Override
 	public void addLast(E e) {
-		// TODO Auto-generated method stub
-		
+		final Node<E> newLast = new Node<>(e,null,last);
+		if (isEmpty()) {
+			first = newLast;
+		} else {
+			last.setNext(newLast);
+		}
+		last = newLast;
 	}
 
 	@Override
@@ -37,14 +50,15 @@ public class DoublyLinkedList<E> implements List<E>, Deque<E>
 
 	@Override
 	public E element() {
-		// TODO Auto-generated method stub
-		return null;
+		if (isEmpty()) {
+			throw new NoSuchElementException();
+		}
+		return first.getValue();
 	}
 
 	@Override
 	public E getFirst() {
-		// TODO Auto-generated method stub
-		return null;
+		return element();
 	}
 
 	@Override
@@ -205,8 +219,7 @@ public class DoublyLinkedList<E> implements List<E>, Deque<E>
 
 	@Override
 	public boolean isEmpty() {
-		// TODO Auto-generated method stub
-		return false;
+		return first == null;
 	}
 
 	@Override
@@ -288,29 +301,29 @@ public class DoublyLinkedList<E> implements List<E>, Deque<E>
 	}
 
 	private final static class Node<E> {
-		private final E valor;
-		private Node<E> siguiente;
-		private Node<E> previo;
-		public Node(E valor, Node<E> siguiente, Node<E> previo) {
+		private final E value;
+		private Node<E> next;
+		private Node<E> previous;
+		public Node(E value, Node<E> next, Node<E> previous) {
 			super();
-			this.valor = valor;
-			this.siguiente = siguiente;
-			this.previo = previo;
+			this.value = value;
+			this.next = next;
+			this.previous = previous;
 		}
-		public Node<E> getSiguiente() {
-			return siguiente;
+		public Node<E> getNext() {
+			return next;
 		}
-		public void setSiguiente(Node<E> siguiente) {
-			this.siguiente = siguiente;
+		public void setNext(Node<E> next) {
+			this.next = next;
 		}
-		public Node<E> getPrevio() {
-			return previo;
+		public Node<E> getPrevious() {
+			return previous;
 		}
-		public void setPrevio(Node<E> previo) {
-			this.previo = previo;
+		public void setPrevious(Node<E> previous) {
+			this.previous = previous;
 		}
-		public E getValor() {
-			return valor;
+		public E getValue() {
+			return value;
 		}
 	}
 }
