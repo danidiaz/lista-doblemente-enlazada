@@ -4,7 +4,7 @@ package info.danidiaz.util;
  * Hello world!
  *
  */
-public class App 
+public class ListaDoblementeEnlazada 
 {
     public static void main( String[] args )
     {
