@@ -8,7 +8,12 @@ import java.util.ListIterator;
 import java.util.NoSuchElementException;
 
 /**
- * Hello world!
+ * <p>An implementation of a doubly linked list.<p>
+ * 
+ * <p>Some methods which the standard interfaces designate as optional have not
+ * been implemented and throw {@link UnsupportedOperationException}. In
+ * particular random-access methods, which are bound to be inefficient for
+ * linked lists.</p>
  *
  */
 public final class DoublyLinkedList<E> implements List<E>, Deque<E>
@@ -224,8 +229,7 @@ public final class DoublyLinkedList<E> implements List<E>, Deque<E>
 
 	@Override
 	public Iterator<E> iterator() {
-		// TODO Auto-generated method stub
-		return null;
+		return listIterator();
 	}
 
 	@Override
@@ -236,50 +240,67 @@ public final class DoublyLinkedList<E> implements List<E>, Deque<E>
 
 	@Override
 	public ListIterator<E> listIterator() {
-		// TODO Auto-generated method stub
-		return null;
+		return new DoublyLinkedListIterator();
 	}
 
 	@Override
 	public ListIterator<E> listIterator(int index) {
-		// TODO Auto-generated method stub
-		return null;
+		final ListIterator<E> iter = listIterator();
+		for (int i=0;i<index;i++) {
+			if (i < index-1 && !iter.hasNext()) {
+				throw new IndexOutOfBoundsException();
+			}
+		}
+		return iter;
 	}
 
+	/** Unsupported.
+	  * @throws UnsupportedOperationException always
+	  */
 	@Override
 	public boolean remove(Object o) {
-		// TODO Auto-generated method stub
-		return false;
+		throw new UnsupportedOperationException();
 	}
 
+	/** Unsupported.
+	  * @throws UnsupportedOperationException always
+	  */
 	@Override
 	public E remove(int index) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException();
 	}
 
+	/** Unsupported.
+	  * @throws UnsupportedOperationException always
+	  */
 	@Override
 	public boolean removeAll(Collection<?> c) {
-		// TODO Auto-generated method stub
-		return false;
+		throw new UnsupportedOperationException();
 	}
 
+	/** Unsupported.
+	  * @throws UnsupportedOperationException always
+	  */
 	@Override
 	public boolean retainAll(Collection<?> c) {
-		// TODO Auto-generated method stub
-		return false;
+		throw new UnsupportedOperationException();
 	}
 
+	/** Unsupported.
+	  * @throws UnsupportedOperationException always
+	  */
 	@Override
 	public E set(int index, E element) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public int size() {
-		// TODO Auto-generated method stub
-		return 0;
+		final ListIterator<E> iter = listIterator();
+		while (iter.hasNext()) {
+			iter.next();
+		}
+		return iter.nextIndex();
 	}
 
 	@Override
@@ -300,7 +321,7 @@ public final class DoublyLinkedList<E> implements List<E>, Deque<E>
 	}
 
 	private final static class Node<E> {
-		private final E value;
+		private E value;
 		private Node<E> next;
 		private Node<E> previous;
 		public Node(E value, Node<E> next, Node<E> previous) {
@@ -324,62 +345,134 @@ public final class DoublyLinkedList<E> implements List<E>, Deque<E>
 		public E getValue() {
 			return value;
 		}
+		public void setValue(E e) {
+			value = e;
+		}
 	}
 	
-	private final class DoublyLinkedListIterator<E> implements ListIterator {
+	private final class DoublyLinkedListIterator implements ListIterator<E> {
+
+		private int index;
+		private Node<E> iterPrevious;
+		private Node<E> iterNext;
+		// See https://docs.oracle.com/javase/7/docs/api/java/util/ListIterator.html#remove()
+		// for an explanation of the necessity of keeping track of the last movement.
+		private Node<E> lastMovement;
+
+		public DoublyLinkedListIterator() {
+			super();
+			this.index = 0;
+			this.iterPrevious = null;
+			this.iterNext = DoublyLinkedList.this.first;
+			this.lastMovement = null;
+		}
 
 		@Override
-		public void add(Object arg0) {
-			// TODO Auto-generated method stub
-			
+		public void add(E arg0) {
+			index++;
+			final Node<E> node = new Node<E>(arg0,iterPrevious,iterNext);
+			if (iterPrevious==null) {
+				DoublyLinkedList.this.first = node;
+			}
+			if (iterNext==null) {
+				DoublyLinkedList.this.last = node;
+			}
+			lastMovement = null;
+			iterPrevious = node;
 		}
 
 		@Override
 		public boolean hasNext() {
-			// TODO Auto-generated method stub
-			return false;
+			return iterNext != null;
 		}
 
 		@Override
 		public boolean hasPrevious() {
-			// TODO Auto-generated method stub
-			return false;
+			return iterPrevious != null;
 		}
 
 		@Override
-		public Object next() {
-			// TODO Auto-generated method stub
-			return null;
+		public E next() {
+			if (iterNext == null) {
+				throw new NoSuchElementException();
+			}
+			index++;
+			final E result = iterNext.getValue();
+			lastMovement = iterNext;
+			iterPrevious = iterNext;
+			iterNext = iterNext.getNext();
+			return result;
 		}
 
 		@Override
 		public int nextIndex() {
-			// TODO Auto-generated method stub
-			return 0;
+			return index;
 		}
 
 		@Override
-		public Object previous() {
-			// TODO Auto-generated method stub
-			return null;
+		public E previous() {
+			if (iterPrevious == null) {
+				throw new NoSuchElementException();
+			}
+			index--;
+			final E result = iterPrevious.getValue();
+			lastMovement = iterPrevious;
+			iterNext = iterPrevious;
+			iterPrevious = iterPrevious.getPrevious();
+			return result;
 		}
 
 		@Override
 		public int previousIndex() {
-			// TODO Auto-generated method stub
-			return 0;
+			return index-1;
 		}
 
 		@Override
 		public void remove() {
-			// TODO Auto-generated method stub
-			
+			if (lastMovement == null) {
+				throw new IllegalStateException();
+			}
+
+			if (lastMovement == iterPrevious) { // last movement was forwards
+				index--;
+
+				iterPrevious = iterPrevious.getPrevious();
+				if (iterPrevious == null) { // removal put us an the beginning
+					DoublyLinkedList.this.first = iterNext;
+				} else {
+					iterPrevious.setNext(iterNext);
+				}
+
+				if (iterNext == null) { // we were at end of list
+					DoublyLinkedList.this.last = iterPrevious;
+				} else {
+					iterNext.setPrevious(iterPrevious);
+				}
+				
+			} else if (lastMovement == iterNext) { // last movement was backwards
+				iterNext = iterNext.getNext();
+				if (iterNext == null) { // removal put us at the end
+					DoublyLinkedList.this.last = iterPrevious;
+				} else {
+					iterNext.setPrevious(iterPrevious);
+				}
+
+				if (iterPrevious == null) { // we were at the beginning of list
+					DoublyLinkedList.this.first = iterNext;
+				} else {
+					iterPrevious.setNext(iterNext);
+				}
+			}
+
+			lastMovement = null;
 		}
 
 		@Override
-		public void set(Object arg0) {
-			// TODO Auto-generated method stub
-			
+		public void set(E e) {
+			if (lastMovement == null) {
+				throw new IllegalStateException();
+			}
+			lastMovement.setValue(e);
 		}
 	}
 }
