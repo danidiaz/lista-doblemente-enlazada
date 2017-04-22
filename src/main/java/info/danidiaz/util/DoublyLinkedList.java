@@ -189,8 +189,8 @@ public final class DoublyLinkedList<E> implements List<E>, Deque<E>
 
 	@Override
 	public void clear() {
-		// TODO Auto-generated method stub
-		
+		first = null;
+		last = null;
 	}
 
 	@Override
@@ -290,7 +290,6 @@ public final class DoublyLinkedList<E> implements List<E>, Deque<E>
 
 	@Override
 	public Object[] toArray() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -324,6 +323,63 @@ public final class DoublyLinkedList<E> implements List<E>, Deque<E>
 		}
 		public E getValue() {
 			return value;
+		}
+	}
+	
+	private final class DoublyLinkedListIterator<E> implements ListIterator {
+
+		@Override
+		public void add(Object arg0) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public boolean hasNext() {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		@Override
+		public boolean hasPrevious() {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		@Override
+		public Object next() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public int nextIndex() {
+			// TODO Auto-generated method stub
+			return 0;
+		}
+
+		@Override
+		public Object previous() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public int previousIndex() {
+			// TODO Auto-generated method stub
+			return 0;
+		}
+
+		@Override
+		public void remove() {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void set(Object arg0) {
+			// TODO Auto-generated method stub
+			
 		}
 	}
 }
