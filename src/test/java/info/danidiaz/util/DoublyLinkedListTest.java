@@ -303,6 +303,40 @@ public class DoublyLinkedListTest {
     }
 
     @Test()
+    public void testIterRemoveAfterNext() {
+        ListIterator<Integer> iter = three.listIterator();
+        iter.next();
+        iter.next();
+        iter.remove();
+        assertArrayEquals(new Object[] {0,2},three.toArray());
+    }
+
+    @Test()
+    public void testIterRemoveAfterPrevious() {
+        ListIterator<Integer> iter = three.listIterator();
+        iter.next();
+        iter.next();
+        iter.previous();
+        iter.remove();
+        assertArrayEquals(new Object[] {0,2},three.toArray());
+    }
+    
+    @Test()
+    public void testIterNextAndPrevious() {
+        ListIterator<Integer> iter = three.listIterator();
+        Integer e1 = iter.next();
+        Integer e2 = iter.previous();
+        Integer e3 = iter.next();
+        Integer e4 = iter.next();
+        Integer e5 = iter.next();
+        Integer e6 = iter.previous();
+        Integer e7 = iter.previous();
+        assertArrayEquals(new Object[] {0,0,0,1,2,2,1}
+                         ,new Object[] {e1,e2,e3,e4,e5,e6,e7});
+    }
+    
+
+    @Test()
     public void testDescendingIterator() {
         DoublyLinkedList<Integer>.DescendingIterator iter = 
                 three.descendingIterator();
