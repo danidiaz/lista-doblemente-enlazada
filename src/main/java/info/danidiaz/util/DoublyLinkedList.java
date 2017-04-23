@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 /**
  * <p>An implementation of a doubly linked list.<p>
@@ -15,11 +16,11 @@ import java.util.NoSuchElementException;
  * particular random-access methods, which are bound to be inefficient for
  * linked lists.</p>
  * 
- * <p>Also not implemented are methods like {@link subList} that would be
- * complex to implement and out of scope for the exercise.</p>
+ * <p>Also not implemented are methods like {@link subList} that are out of
+ * scope for the exercise.</p>
  * 
- * <p>Intermediate insertions can be done using the {@link ForwardIterator}
- * returned by {@link listIterator()}.
+ * <p>Intermediate insertions and deletions can be done using the {@link
+ * ForwardIterator} returned by {@link listIterator()}.
  * 
  * <p>Use {@link descendingIterator()} to get an iterator that goes backwards
  * from the end of the list. The {@link forward()} method changes direction.</p>
@@ -40,34 +41,13 @@ public final class DoublyLinkedList<E> implements List<E>, Deque<E>
 	@Override
 	public void addFirst(E e) {
 		listIterator().add(e);
-/*		final Node<E> newFirst = new Node<>(e,first,null);
-		if (isEmpty()) {
-			last = newFirst;
-		} else {
-			first.setPrevious(newFirst);
-		}
-		first = newFirst;
-		size++;*/
 	}
 
 	@Override
 	public void addLast(E e) {
-		descendingIterator().forward().add(e);
-/*
-		final Node<E> newLast = new Node<>(e,null,last);
-		if (isEmpty()) {
-			first = newLast;
-		} else {
-			last.setNext(newLast);
-		}
-		last = newLast;
-		size++;*/
+		listIteratorAtEnd().add(e);
 	}
 
-	@Override
-	public DescendingIterator descendingIterator() {
-		return new ForwardIterator(size-1,last,null).descending();
-	}
 
 	@Override
 	public E element() {
@@ -135,22 +115,24 @@ public final class DoublyLinkedList<E> implements List<E>, Deque<E>
 
 	@Override
 	public E pollFirst() {
-		if (isEmpty()) {
-			return null;
-		}
 		final ForwardIterator iter = listIterator();
-		iter.next();
-		return iter.removeAndGet();
+		if (iter.hasNext()) {
+			E result = iter.next();
+			iter.remove();
+			return result;
+		}
+		return null;
 	}
 
 	@Override
 	public E pollLast() {
-		if (isEmpty()) {
-			return null;
+		final ForwardIterator iter = listIteratorAtEnd();
+		if (iter.hasPrevious()) {
+			E result = iter.previous();
+			iter.remove();
+			return result;
 		}
-		final ForwardIterator iter = descendingIterator().forward();
-		iter.previous();
-		return iter.removeAndGet();
+		return null;
 	}
 
 	@Override
@@ -170,33 +152,48 @@ public final class DoublyLinkedList<E> implements List<E>, Deque<E>
 
 	@Override
 	public E removeFirst() {
-		if (isEmpty()) {
-			throw new NoSuchElementException();
-		}
 		final ForwardIterator iter = listIterator();
-		iter.next();
-		return iter.removeAndGet();
-	}
-
-	@Override
-	public boolean removeFirstOccurrence(Object o) {
-		// TODO Auto-generated method stub
-		return false;
+		if (iter.hasNext()) {
+			E result = iter.next();
+			iter.remove();
+			return result;
+		}
+		throw new NoSuchElementException();
 	}
 
 	@Override
 	public E removeLast() {
-		if (isEmpty()) {
-			throw new NoSuchElementException();
+		final ForwardIterator iter = listIteratorAtEnd();
+		if (iter.hasPrevious()) {
+			E result = iter.previous();
+			iter.remove();
+			return result;
 		}
-		final ForwardIterator iter = descendingIterator().forward();
-		iter.previous();
-		return iter.removeAndGet();
+		throw new NoSuchElementException();
+	}
+
+	@Override
+	public boolean remove(Object o) {
+		return removeFirstOccurrence(o);
+	}
+
+	@Override
+	public boolean removeFirstOccurrence(Object o) {
+		ListIterator<E> iter = iterOf(o);
+		if (iter!=null) {
+			iter.remove();
+			return true;
+		}
+		return false;
 	}
 
 	@Override
 	public boolean removeLastOccurrence(Object o) {
-		// TODO Auto-generated method stub
+		ListIterator<E> iter = iterLastOf(o);
+		if (iter!=null) {
+			iter.remove();
+			return true;
+		}
 		return false;
 	}
 
@@ -204,15 +201,6 @@ public final class DoublyLinkedList<E> implements List<E>, Deque<E>
 	public boolean add(E e) {
 		addLast(e);
 		return true;
-	}
-
-	/** Unsupported.
-	  * @throws UnsupportedOperationException always
-	  */
-	@Override
-	public void add(int index, E element) {
-		throw new UnsupportedOperationException();
-		
 	}
 
 	@Override
@@ -223,12 +211,9 @@ public final class DoublyLinkedList<E> implements List<E>, Deque<E>
 		return true;
 	}
 
-	/** Unsupported.
-	  * @throws UnsupportedOperationException always
-	  */
 	@Override
-	public boolean addAll(int index, Collection<? extends E> c) {
-		throw new UnsupportedOperationException();
+	public boolean isEmpty() {
+		return size == 0;
 	}
 
 	@Override
@@ -240,20 +225,7 @@ public final class DoublyLinkedList<E> implements List<E>, Deque<E>
 
 	@Override
 	public boolean contains(Object o) {
-		if (o==null) {
-			for (E e:this) {
-				if (e==null) {
-					return true;
-				}
-			}
-		} else {
-			for (E e:this) {
-				if (o.equals(e)) {
-					return true;
-				}
-			}
-		}
-		return false;
+		return indexOf(o) != -1;
 	}
 
 	@Override
@@ -268,35 +240,95 @@ public final class DoublyLinkedList<E> implements List<E>, Deque<E>
 
 	@Override
 	public E get(int index) {
-		// TODO Auto-generated method stub
+		Iterator<E> iter = listIterator(index);
+		if (iter.hasNext()) {
+			return iter.next();
+		}
+		throw new IndexOutOfBoundsException();
+	}
+
+	/**
+	 * Variant of {@link indexOf} which returns an iterator.
+	 * @param o Element to search for. 
+	 * @return null if the element isn't present, otherwise an iterator that has
+	 * just passed the element.
+	 */
+	public ForwardIterator iterOf(Object o) {
+		ForwardIterator iter = listIterator();
+		if (o == null) {
+			while (iter.hasNext()) {
+				E element = iter.next();
+				if (element == null) {
+					return iter;
+				}
+			}
+		} else {
+			while (iter.hasNext()) {
+				E element = iter.next();
+				if (o.equals(element)) {
+					return iter;
+				}
+			}
+		}
 		return null;
 	}
-
+	
 	@Override
 	public int indexOf(Object o) {
-		// TODO Auto-generated method stub
-		return 0;
+		ListIterator<E> iter = iterOf(o);
+		return iter==null? -1 : iter.previousIndex();
 	}
 
-	@Override
-	public boolean isEmpty() {
-		return size == 0;
-	}
 
 	@Override
 	public Iterator<E> iterator() {
 		return listIterator();
 	}
 
+	/**
+	 * Variant of {@link lastIndexOf} which returns an iterator.
+	 * @param o Element to search for. 
+	 * @return null if the element isn't present, otherwise an iterator that has
+	 * just passed the element while going backwards.
+	 */
+	public ForwardIterator iterLastOf(Object o) {
+		ForwardIterator iter = listIteratorAtEnd();
+		if (o == null) {
+			while (iter.hasPrevious()) {
+				E element = iter.previous();
+				if (element == null) {
+					return iter;
+				}
+			}
+		} else {
+			while (iter.hasPrevious()) {
+				E element = iter.previous();
+				if (element != null && element.equals(o)) {
+					return iter;
+				}
+			}
+		}
+		return null;
+	}
+
 	@Override
 	public int lastIndexOf(Object o) {
-		// TODO Auto-generated method stub
-		return 0;
+		ListIterator<E> iter = iterLastOf(o);
+		return iter==null? -1 : iter.nextIndex();
 	}
 
 	@Override
 	public ForwardIterator listIterator() {
-		return new ForwardIterator(0,null,DoublyLinkedList.this.first);
+		return new ForwardIterator(0,null,first);
+	}
+
+	@Override
+	public DescendingIterator descendingIterator() {
+		return new ForwardIterator(size-1,last,null).descending();
+	}
+
+	public ForwardIterator listIteratorAtEnd() {
+		return descendingIterator().forward();
 	}
 
 	@Override
@@ -306,17 +338,50 @@ public final class DoublyLinkedList<E> implements List<E>, Deque<E>
 			if (i < index-1 && !iter.hasNext()) {
 				throw new IndexOutOfBoundsException();
 			}
+			iter.next();
 		}
 		return iter;
 	}
 
-	/** Unsupported.
-	  * @throws UnsupportedOperationException always
-	  */
 	@Override
-	public boolean remove(Object o) {
-		throw new UnsupportedOperationException();
+	public Object[] toArray() {
+		Object [] result = new Object[size()];
+		ListIterator<E> iter = listIterator();
+		while (iter.hasNext()) {
+			final int index = iter.nextIndex();
+			final E element = iter.next();
+			result[index] = element; 
+		}
+		return result;
 	}
+
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append('[');
+		Iterator<E> iter = iterator();
+		while (iter.hasNext()) {
+			E e = iter.next();
+			if (e==null) {
+				builder.append("null");
+			} else {
+				builder.append(e.toString());
+			}
+			if (iter.hasNext()) {
+				builder.append(',');
+			}
+		}
+		builder.append(']');
+		return builder.toString();
+	}
+	
+	/**
+	 * This method has O(1) complexity, because the size is cached.
+	 */
+	@Override
+	public int size() {
+		return size;
+	}
+
 
 	/** Unsupported.
 	  * @throws UnsupportedOperationException always
@@ -350,14 +415,6 @@ public final class DoublyLinkedList<E> implements List<E>, Deque<E>
 		throw new UnsupportedOperationException();
 	}
 
-	/**
-	 * This method has O(1) complexity, because the size is cached.
-	 */
-	@Override
-	public int size() {
-		return size;
-	}
-
 	/** Unsupported.
 	  * @throws UnsupportedOperationException always
 	  */
@@ -366,16 +423,21 @@ public final class DoublyLinkedList<E> implements List<E>, Deque<E>
 		throw new UnsupportedOperationException();
 	}
 
+	/** Unsupported.
+	  * @throws UnsupportedOperationException always
+	  */
 	@Override
-	public Object[] toArray() {
-		Object [] result = new Object[size()];
-		ListIterator<E> iter = listIterator();
-		while (iter.hasNext()) {
-			final int index = iter.nextIndex();
-			final E element = iter.next();
-			result[index] = element; 
-		}
-		return result;
+	public void add(int index, E element) {
+		throw new UnsupportedOperationException();
+		
+	}
+
+	/** Unsupported.
+	  * @throws UnsupportedOperationException always
+	  */
+	@Override
+	public boolean addAll(int index, Collection<? extends E> c) {
+		throw new UnsupportedOperationException();
 	}
 
 	/** Unsupported.
@@ -388,18 +450,12 @@ public final class DoublyLinkedList<E> implements List<E>, Deque<E>
 
 	private final static class Node<E> {
 		private E value;
-		private Node<E> next;
 		private Node<E> previous;
-		public Node(E value, Node<E> next, Node<E> previous) {
+		private Node<E> next;
+		public Node(E value, Node<E> previous,Node<E> next) {
 			super();
 			this.value = value;
-			this.next = next;
 			this.previous = previous;
-		}
-		public Node<E> getNext() {
-			return next;
-		}
-		public void setNext(Node<E> next) {
 			this.next = next;
 		}
 		public Node<E> getPrevious() {
@@ -408,11 +464,30 @@ public final class DoublyLinkedList<E> implements List<E>, Deque<E>
 		public void setPrevious(Node<E> previous) {
 			this.previous = previous;
 		}
+		public Node<E> getNext() {
+			return next;
+		}
+		public void setNext(Node<E> next) {
+			this.next = next;
+		}
 		public E getValue() {
 			return value;
 		}
 		public void setValue(E e) {
 			value = e;
+		}
+		// Useful for debugging.
+		public String toString() {
+			StringBuilder builder = new StringBuilder();
+			builder.append(String.format("{ val = %s",getValue()));
+			if (getPrevious()!=null) {
+				builder.append(String.format(", previous = %s ",getPrevious().getValue()));
+			}
+			if (getNext()!=null) {
+				builder.append(String.format(", next = %s ",getNext().getValue()));
+			}
+			builder.append(" }");
+			return builder.toString();
 		}
 	}
 
@@ -438,13 +513,17 @@ public final class DoublyLinkedList<E> implements List<E>, Deque<E>
 			index++;
 			final Node<E> node = new Node<E>(arg0,iterPrevious,iterNext);
 			if (iterPrevious==null) {
-				DoublyLinkedList.this.first = node;
+				first = node;
+			} else {
+				iterPrevious.setNext(node);
 			}
 			if (iterNext==null) {
-				DoublyLinkedList.this.last = node;
+				last = node;
+			} else {
+				iterNext.setPrevious(node);
 			}
+			iterPrevious = node; 
 			lastMovement = null;
-			iterPrevious = node;
 			size++;
 		}
 
@@ -472,11 +551,6 @@ public final class DoublyLinkedList<E> implements List<E>, Deque<E>
 		}
 
 		@Override
-		public int nextIndex() {
-			return index;
-		}
-
-		@Override
 		public E previous() {
 			if (iterPrevious == null) {
 				throw new NoSuchElementException();
@@ -490,11 +564,17 @@ public final class DoublyLinkedList<E> implements List<E>, Deque<E>
 		}
 
 		@Override
+		public int nextIndex() {
+			return index;
+		}
+
+		@Override
 		public int previousIndex() {
 			return index-1;
 		}
 
-		public E removeAndGet() {
+		@Override
+		public void remove() {
 			if (lastMovement == null) {
 				throw new IllegalStateException();
 			}
@@ -529,16 +609,8 @@ public final class DoublyLinkedList<E> implements List<E>, Deque<E>
 					iterPrevious.setNext(iterNext);
 				}
 			}
-
-			E result = lastMovement.getValue();
 			lastMovement = null;
 			size--;
-			return result;
-		}
-
-		@Override
-		public void remove() {
-			removeAndGet();
 		}
 
 		@Override
