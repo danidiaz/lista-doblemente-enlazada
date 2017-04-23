@@ -239,7 +239,7 @@ public final class DoublyLinkedList<E> implements List<E>, Deque<E>
 
 	@Override
 	public E get(int index) {
-		if (index >0 && index < size()) {
+		if (index >= 0 && index < size()) {
 			Iterator<E> iter = listIterator(index);
 			return iter.next();
 		}

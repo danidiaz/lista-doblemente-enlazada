@@ -6,10 +6,18 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
 
+import org.junit.Before;
 import org.junit.Test;
 
 public class DoublyLinkedListTest {
 
+	private DoublyLinkedList<Integer> base;
+
+	@Before
+	public void setUp() {
+		base = buildIntegerList(7);
+	}
+	  
 	// It is important to have independed size() tests because the value is
 	// cached and bugs might make it diverge from the actual number of elements.
 	@Test
@@ -115,6 +123,14 @@ public class DoublyLinkedListTest {
 	@Test(expected=NoSuchElementException.class)
 	public void testEmptyGetLast() {
 		assertNull(buildIntegerList(0).getLast());
+	}
+
+	@Test
+	public void testGet() {
+		for (int i=0;i<base.size();i++) {
+			assertEquals(String.format("Getting index %d",i),
+					(Integer)i,base.get(i));
+		}
 	}
 
 	public static DoublyLinkedList<Integer> buildIntegerList(int size) {
