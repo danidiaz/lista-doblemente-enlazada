@@ -6,7 +6,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 
 /**
  * <p>An implementation of a doubly linked list.<p>
@@ -475,6 +474,7 @@ public final class DoublyLinkedList<E> implements List<E>, Deque<E>
         public void setValue(E e) {
             value = e;
         }
+
         // Useful for debugging.
         public String toString() {
             StringBuilder builder = new StringBuilder();
@@ -492,13 +492,16 @@ public final class DoublyLinkedList<E> implements List<E>, Deque<E>
 
     public final class ForwardIterator implements ListIterator<E> {
 
-        private int index;
+        //  Index of the element that would be returned by a subsequent call to
+        //  next().
+        private int index; 
+
         private Node<E> iterPrevious;
         private Node<E> iterNext;
+
         // See https://docs.oracle.com/javase/7/docs/api/java/util/ListIterator.html#remove()
         // for an explanation of the necessity of keeping track of the last movement.
         private Node<E> lastMovement = null;
-
 
         public ForwardIterator(int index, Node<E> iterPrevious, Node<E> iterNext) {
             super();
@@ -510,7 +513,7 @@ public final class DoublyLinkedList<E> implements List<E>, Deque<E>
         @Override
         public void add(E arg0) {
             index++;
-            final Node<E> newNode = new Node<E>(arg0,iterPrevious,iterNext);
+            final Node<E> newNode = new Node<>(arg0,iterPrevious,iterNext);
             if (iterPrevious==null) {
                 first = newNode;
             } else {
