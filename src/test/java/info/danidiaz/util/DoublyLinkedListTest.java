@@ -348,9 +348,37 @@ public class DoublyLinkedListTest {
         assertArrayEquals(new Object[] {2,1,0}
                          ,new Object[] {e1,e2,e3});
         
-        assertEquals("next index of the underlying iterator",
+        assertEquals("next index of the underlying forward iterator",
                      0, 
                      iter.forward().nextIndex());
+    }
+
+    @Test()
+    public void testIndexOf() {
+        // Duplicate values at the end to ensure we are
+        // really getting the first occurrences.
+        three.addLast(0);
+        three.addLast(1);
+        three.addLast(2);
+        
+        for (int i=0; i < 2; i++) {
+            assertEquals(i, three.indexOf(i));
+        }
+        assertEquals(-1, three.indexOf(11));
+    }
+
+    @Test()
+    public void testLastIndexOf() {
+        // Duplicate values at the beginning to ensure we are
+        // really getting the last occurrences.
+        three.addFirst(0);
+        three.addFirst(1);
+        three.addFirst(2);
+        
+        assertEquals(5, three.lastIndexOf(2));
+        assertEquals(4, three.lastIndexOf(1));
+        assertEquals(3, three.lastIndexOf(0));
+        assertEquals(-1, three.lastIndexOf(11));
     }
 
     public static DoublyLinkedList<Integer> buildIntegerList(int size) {
