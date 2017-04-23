@@ -323,7 +323,7 @@ public final class DoublyLinkedList<E> implements List<E>, Deque<E>
 
 	@Override
 	public DescendingIterator descendingIterator() {
-		return new ForwardIterator(size-1,last,null).descending();
+		return new ForwardIterator(size,last,null).descending();
 	}
 
 	public ForwardIterator listIteratorAtEnd() {
@@ -490,7 +490,7 @@ public final class DoublyLinkedList<E> implements List<E>, Deque<E>
 		}
 	}
 
-	private final class ForwardIterator implements ListIterator<E> {
+	public final class ForwardIterator implements ListIterator<E> {
 
 		private int index;
 		private Node<E> iterPrevious;
@@ -510,18 +510,18 @@ public final class DoublyLinkedList<E> implements List<E>, Deque<E>
 		@Override
 		public void add(E arg0) {
 			index++;
-			final Node<E> node = new Node<E>(arg0,iterPrevious,iterNext);
+			final Node<E> newNode = new Node<E>(arg0,iterPrevious,iterNext);
 			if (iterPrevious==null) {
-				first = node;
+				first = newNode;
 			} else {
-				iterPrevious.setNext(node);
+				iterPrevious.setNext(newNode);
 			}
 			if (iterNext==null) {
-				last = node;
+				last = newNode;
 			} else {
-				iterNext.setPrevious(node);
+				iterNext.setPrevious(newNode);
 			}
-			iterPrevious = node; 
+			iterPrevious = newNode; 
 			lastMovement = null;
 			size++;
 		}
@@ -585,7 +585,7 @@ public final class DoublyLinkedList<E> implements List<E>, Deque<E>
 				if (iterPrevious == null) { // removal put us an the beginning
 					first = iterNext;
 				} else {
-					iterPrevious.setNext(iterNext);
+					iterPrevious.setNext(iterNext); 
 				}
 
 				if (iterNext == null) { // we were at end of list
@@ -625,7 +625,7 @@ public final class DoublyLinkedList<E> implements List<E>, Deque<E>
 		}
 	}
 
-	private final class DescendingIterator implements Iterator<E> {
+	public final class DescendingIterator implements Iterator<E> {
 		private ForwardIterator iter;
 
 		public DescendingIterator(DoublyLinkedList<E>.ForwardIterator iter) {

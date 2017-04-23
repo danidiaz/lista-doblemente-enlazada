@@ -2,6 +2,7 @@ package info.danidiaz.util;
 
 import static org.junit.Assert.*;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
@@ -11,48 +12,52 @@ import org.junit.Test;
 
 public class DoublyLinkedListTest {
 
-	private DoublyLinkedList<Integer> base;
+	private DoublyLinkedList<Integer> none;
+	private DoublyLinkedList<Integer> one;
+	private DoublyLinkedList<Integer> two;
+	private DoublyLinkedList<Integer> three;
+	private DoublyLinkedList<Integer> many;
 
 	@Before
 	public void setUp() {
-		base = buildIntegerList(7);
+		none = buildIntegerList(0);
+		one = buildIntegerList(1);
+		two = buildIntegerList(2);
+		three = buildIntegerList(3);
+		many = buildIntegerList(7);
 	}
 	  
-	// It is important to have independed size() tests because the value is
+	// It is important to have independent size() tests because the value is
 	// cached and bugs might make it diverge from the actual number of elements.
 	@Test
 	public void testEmptyListSize() {
 		assertEquals("Emtpy list has size 0",
-				0,new DoublyLinkedList<>().size());
-		assertTrue("Emtpy list is empty",
-				new DoublyLinkedList<>().isEmpty());
+				0,none.size());
+		assertTrue("Emtpy list is empty", none.isEmpty());
 	}
 
 	@Test
 	public void testClearedListSize() {
-		DoublyLinkedList<Integer> l = buildIntegerList(5);
-		l.clear();
-		assertEquals("Cleared list has size 0",0,l.size());
-		assertTrue("Cleared list is empty",l.isEmpty());
+		many.clear();
+		assertEquals("Cleared list has size 0",0,many.size());
+		assertTrue("Cleared list is empty",many.isEmpty());
 	}
 	
 	@Test
 	public void testSizeAfterAddFirst() {
-		DoublyLinkedList<Integer> l = new DoublyLinkedList<>();
 		for (int i=0;i<5;i++) {
-			l.addFirst(i);
+			none.addFirst(i);
 			assertEquals(String.format("List size after adding %d elements",i+1),
-				i+1,l.size());
+				i+1,none.size());
 		}
 	}
 
 	@Test
 	public void testSizeAfterAddLast() {
-		DoublyLinkedList<Integer> l = new DoublyLinkedList<>();
 		for (int i=0;i<5;i++) {
-			l.addLast(i);
+			none.addLast(i);
 			assertEquals(String.format("List size after adding %d elements",i+1),
-				i+1,l.size());
+				i+1,none.size());
 		}
 	}
 
@@ -106,31 +111,212 @@ public class DoublyLinkedListTest {
 	
 	@Test
 	public void testPeekFirstOnEmpty() {
-		assertNull("peek on empty list",buildIntegerList(0).peek());
-		assertNull("peek first on empty list",buildIntegerList(0).peekFirst());
+		assertNull("peek on empty list",none.peek());
+		assertNull("peek first on empty list",none.peekFirst());
+		
+		one.removeFirst();
+		assertNull("peek on empty list 2",one.peekFirst());
 	}
 
 	@Test(expected=NoSuchElementException.class)
 	public void testEmptyGetFirst() {
-		assertNull(buildIntegerList(0).getFirst());
+		none.getFirst();
 	}
 	
 	@Test
 	public void testPeekLastOnEmpty() {
-		assertNull(buildIntegerList(0).peekLast());
+		assertNull("peek last on empty list", none.peekLast());
+
+		one.removeFirst();
+		assertNull("peek last on empty list 2",one.peekLast());
 	}
 
 	@Test(expected=NoSuchElementException.class)
 	public void testEmptyGetLast() {
-		assertNull(buildIntegerList(0).getLast());
+		none.getLast();
+	}
+
+	@Test
+	public void testPollFirstOnEmpty() {
+		assertNull("poll on empty list",none.poll());
+		assertNull("poll first on empty list",none.pollFirst());
+
+		one.removeFirst();
+		assertNull("poll first on empty list 2",one.pollFirst());
+	}
+
+	@Test(expected=NoSuchElementException.class)
+	public void testEmptyRemoveFirst() {
+		none.removeFirst();
+	}
+	
+	@Test
+	public void testPollLastOnEmpty() {
+		assertNull("poll last on empty list", none.pollLast());
+
+		one.removeFirst();
+		assertNull("poll last on empty list 2",one.pollLast());
+	}
+
+	@Test(expected=NoSuchElementException.class)
+	public void testEmptyRemoveLast() {
+		none.removeLast();
+	}
+	
+	@Test
+	public void testPollFirst() {
+	    for (int i=0;i<many.size();i++) {
+	        assertEquals((Integer)i,many.pollFirst());
+	    }
+	}
+	
+	@Test
+	public void testRemoveFirst() {
+	    for (int i=0;i<many.size();i++) {
+	        assertEquals((Integer)i,many.removeFirst());
+	    }
+	}
+
+	@Test
+	public void testPollLast() {
+	    for (int i=many.size()-1;i>=0;i--) {
+	        assertEquals((Integer)i,many.pollLast());
+	    }
+	}
+
+	@Test
+	public void testAddFirst() {
+	    three.addFirst(-1);
+	    three.addFirst(-2);
+	    assertArrayEquals(new Integer []{ -2,-1,0,1,2 }, three.toArray());
+	}
+
+	@Test
+	public void testAddLast() {
+	    three.addLast(3);
+	    three.addLast(4);
+	    assertArrayEquals(new Integer []{ 0,1,2,3,4 }, three.toArray());
+	}
+
+	@Test
+	public void testRemoveLast() {
+	    for (int i=many.size()-1;i>=0;i--) {
+	        assertEquals((Integer)i,many.removeLast());
+	    }
+	}
+
+	@Test
+	public void testToArray() {
+	    assertArrayEquals(new Integer []{ 0,1,2 }, three.toArray());
 	}
 
 	@Test
 	public void testGet() {
-		for (int i=0;i<base.size();i++) {
+		for (int i=0;i<many.size();i++) {
 			assertEquals(String.format("Getting index %d",i),
-					(Integer)i,base.get(i));
+					(Integer)i,many.get(i));
 		}
+	}
+	
+	@Test
+	public void testIterNextIndex() {
+	    ListIterator<Integer> iter = two.listIterator();
+	    assertEquals("starting value",0,iter.nextIndex());
+
+	    iter.next();
+	    assertEquals("after 1st elem",1,iter.nextIndex());
+
+	    iter.add(17);
+	    assertEquals("after insertion",2,iter.nextIndex());
+
+	    iter.next();
+	    assertEquals("after 3rd elem",3,iter.nextIndex());
+
+	    iter.remove();
+	    assertEquals("after deletion",2,iter.nextIndex());
+	}
+
+	@Test
+	public void testIterNextIndexAtBeginning() {
+	    ListIterator<Integer> iter = many.listIterator();
+	    assertEquals(0,iter.nextIndex());
+	}
+
+	@Test
+	public void testIterNextIndexAtEnd() {
+	    ListIterator<Integer> iter = many.listIterator();
+	    while (iter.hasNext()) {
+	        iter.next();
+	    }
+	    assertEquals("iterating",7,iter.nextIndex());
+	    
+	    iter = many.listIteratorAtEnd();
+	    assertEquals("constructed",7,iter.nextIndex());
+	}
+
+	@Test
+	public void testIterPreviousIndex() {
+	    ListIterator<Integer> iter = two.listIterator();
+	    assertEquals("starting value",-1,iter.previousIndex());
+
+	    iter.next();
+	    assertEquals("after 1st elem",0,iter.previousIndex());
+
+	    iter.add(17);
+	    assertEquals("after insertion",1,iter.previousIndex());
+
+	    iter.next();
+	    assertEquals("after 3rd elem",2,iter.previousIndex());
+
+	    iter.remove();
+	    assertEquals("after deletion",1,iter.previousIndex());
+	}
+	
+	@Test
+	public void testIterPreviousIndexAtBeginning() {
+	    ListIterator<Integer> iter = many.listIterator();
+	    assertEquals(-1,iter.previousIndex());
+	}
+
+	/**
+	 * As stated in the contract of {@link ListIterator} remove method, remove
+	 * can't be called just after calling add.
+	 */
+	@Test(expected=IllegalStateException.class)
+	public void testIterIllegalRemoveAfterAdd() {
+	    ListIterator<Integer> iter = many.listIterator();
+	    iter.add(17);
+	    iter.remove();
+	}
+
+	@Test(expected=IllegalStateException.class)
+	public void testIterIllegalRemoveAfterRemove() {
+	    ListIterator<Integer> iter = many.listIteratorAtEnd();
+	    iter.remove();
+	    iter.remove();
+	}
+
+	@Test(expected=IllegalStateException.class)
+	public void testIterIllegalRemoveBeforeNext() {
+	    ListIterator<Integer> iter = many.listIterator();
+	    iter.remove();
+	}
+
+	@Test()
+	public void testDescendingIterator() {
+	    DoublyLinkedList<Integer>.DescendingIterator iter = 
+	            three.descendingIterator();
+
+	    Integer e1 = iter.next();
+	    Integer e2 = iter.next();
+	    Integer e3 = iter.next();
+	    
+	    assertArrayEquals(new Object[] {2,1,0}
+	                     ,new Object[] {e1,e2,e3});
+	    
+	    assertEquals("next index of the underlying iterator",
+	                 0, 
+	                 iter.forward().nextIndex());
 	}
 
 	public static DoublyLinkedList<Integer> buildIntegerList(int size) {
