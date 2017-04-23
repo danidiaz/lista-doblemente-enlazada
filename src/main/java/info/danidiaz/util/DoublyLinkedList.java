@@ -48,7 +48,6 @@ public final class DoublyLinkedList<E> implements List<E>, Deque<E>
 		listIteratorAtEnd().add(e);
 	}
 
-
 	@Override
 	public E element() {
 		return getFirst();
@@ -240,8 +239,8 @@ public final class DoublyLinkedList<E> implements List<E>, Deque<E>
 
 	@Override
 	public E get(int index) {
-		Iterator<E> iter = listIterator(index);
-		if (iter.hasNext()) {
+		if (index >0 && index < size()) {
+			Iterator<E> iter = listIterator(index);
 			return iter.next();
 		}
 		throw new IndexOutOfBoundsException();

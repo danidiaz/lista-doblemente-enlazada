@@ -4,13 +4,14 @@ import static org.junit.Assert.*;
 
 import java.util.List;
 import java.util.ListIterator;
+import java.util.NoSuchElementException;
 
 import org.junit.Test;
 
 public class DoublyLinkedListTest {
 
 	// It is important to have independed size() tests because the value is
-	// cached and bugs make it diverge from the actual number of elements.
+	// cached and bugs might make it diverge from the actual number of elements.
 	@Test
 	public void testEmptyListSize() {
 		assertEquals("Emtpy list has size 0",
@@ -62,7 +63,61 @@ public class DoublyLinkedListTest {
 		}
 	}
 	
-	private static DoublyLinkedList<Integer> buildIntegerList(int size) {
+	@Test
+	public void testSizeAfterRemoves() {
+		final int originalSize = 7;
+		DoublyLinkedList<Integer> l = buildIntegerList(originalSize);
+		l.removeFirst();
+		assertEquals(String.format("List of %d after removeFirst",originalSize),originalSize-1,l.size());
+
+		l = buildIntegerList(originalSize);
+		l.removeLast();
+		assertEquals(String.format("List of %d after removeLast",originalSize),originalSize-1,l.size());
+		
+		l = buildIntegerList(originalSize);
+		ListIterator<Integer> iter = l.listIterator(originalSize/2);
+		
+		int howManyDeleted = 0;
+		while (iter.hasNext()) {
+			iter.next();
+			iter.remove();
+			howManyDeleted++;
+			assertEquals(String.format("List of %d after removing %d elements from the middle",originalSize,howManyDeleted),originalSize-howManyDeleted,l.size());
+		}
+
+		howManyDeleted = 0;
+		l = buildIntegerList(originalSize);
+		iter = l.listIteratorAtEnd();
+		while (iter.hasPrevious()) {
+			iter.previous();
+			iter.remove();
+			howManyDeleted++;
+			assertEquals(String.format("List of %d after removing %d elements backwards from the middle",originalSize,howManyDeleted),originalSize-howManyDeleted,l.size());
+		}
+	}
+	
+	@Test
+	public void testPeekFirstOnEmpty() {
+		assertNull("peek on empty list",buildIntegerList(0).peek());
+		assertNull("peek first on empty list",buildIntegerList(0).peekFirst());
+	}
+
+	@Test(expected=NoSuchElementException.class)
+	public void testEmptyGetFirst() {
+		assertNull(buildIntegerList(0).getFirst());
+	}
+	
+	@Test
+	public void testPeekLastOnEmpty() {
+		assertNull(buildIntegerList(0).peekLast());
+	}
+
+	@Test(expected=NoSuchElementException.class)
+	public void testEmptyGetLast() {
+		assertNull(buildIntegerList(0).getLast());
+	}
+
+	public static DoublyLinkedList<Integer> buildIntegerList(int size) {
 		DoublyLinkedList<Integer> l = new DoublyLinkedList<>();
 		for (int i=0;i<size;i++) {
 			l.addLast(i);
