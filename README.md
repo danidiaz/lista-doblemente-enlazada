@@ -10,7 +10,7 @@ El añadido y borrado de elementos en el interior de la lista se realiza a trav�
 
 ## Notas sobre el diseño
 
-Métodos como addFirst,addLast,removeFirst,removeLast están implementados a
+Métodos como addFirst, addLast, removeFirst, removeLast están implementados a
 través del iterador. El motivo es reducir la duplicación de código,
 especialmente de código que manipula "punteros".
 
