@@ -10,22 +10,23 @@ import java.util.NoSuchElementException;
 /**
  * <p>An implementation of a doubly linked list.<p>
  * 
- * <p>Some methods which the standard interfaces designate as optional have not
- * been implemented and throw {@link UnsupportedOperationException}. In
- * particular random-access methods, which are bound to be inefficient for
- * linked lists.</p>
+ * <p>Insertions and deletions inside the list can be done using the {@link
+ * ForwardIterator} returned by {@link #listIterator}.
  * 
- * <p>Also not implemented are methods like {@link subList} that are out of
- * scope for the exercise.</p>
- * 
- * <p>Intermediate insertions and deletions can be done using the {@link
- * ForwardIterator} returned by {@link listIterator()}.
- * 
- * <p>Use {@link descendingIterator()} to get an iterator that goes backwards
- * from the end of the list. The {@link forward()} method changes direction.</p>
+ * <p>Use {@link #descendingIterator} to get an iterator that goes backwards
+ * from the end of the list. The {@link #forward} method changes direction
+ * again.</p>
  *
  * <p>The iterator implementation contains most of the logic.</p>
  *
+ * <p>Some methods which the standard interfaces designate as optional have not
+ * been implemented and throw {@link UnsupportedOperationException}. In
+ * particular some random-access methods, which are bound to be inefficient for
+ * linked lists.</p>
+ * 
+ * <p>Also not implemented are methods like {@link #subList} that are out of
+ * scope for the exercise.</p>
+ * 
  */
 public final class DoublyLinkedList<E> implements List<E>, Deque<E>
 {
@@ -246,7 +247,7 @@ public final class DoublyLinkedList<E> implements List<E>, Deque<E>
     }
 
     /**
-     * Variant of {@link indexOf} which returns an iterator.
+     * Variant of {@link #indexOf} which returns an iterator.
      * @param o Element to search for. 
      * @return null if the element isn't present, otherwise an iterator that has
      * just passed the element.
@@ -284,7 +285,7 @@ public final class DoublyLinkedList<E> implements List<E>, Deque<E>
     }
 
     /**
-     * Variant of {@link lastIndexOf} which returns an iterator.
+     * Variant of {@link #lastIndexOf} which returns an iterator.
      * @param o Element to search for. 
      * @return null if the element isn't present, otherwise an iterator that has
      * just passed the element while going backwards.
